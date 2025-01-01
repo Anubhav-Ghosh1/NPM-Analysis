@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
 import { IoCloseCircleSharp } from "react-icons/io5";
+import Chart from "chart.js/auto";
 import toast from "react-hot-toast";
 
 function Home(props) {
@@ -181,7 +182,7 @@ function Home(props) {
     <div className="h-full">
       <div className="bg-white flex-col items-center gap-5 border flex justify-center p-12 h-fit m-4 md:m-12 rounded-xl shadow-lg">
         <form
-          className="bg-white border flex justify-between border-black rounded-xl px-5 py-2 h-fit w-fit md:w-[60%]"
+          className="bg-white border flex justify-between border-black rounded-xl px-2 md:px-5 py-2 h-fit w-fit md:w-[60%]"
           onSubmit={(e) => e.preventDefault()}
         >
           <input
@@ -253,7 +254,7 @@ function Home(props) {
           {loading && <p className="text-xl font-bold">Loading...</p>}
           {error && <p className="text-xl text-red-500 font-bold">{error}</p>}
           <h2 className="text-2xl font-bold mb-4">Downloads: {downloads}</h2>
-          {chartData && <div className="w-96 mx-auto">{renderChart()}</div>}
+          {chartData && <div className="md:w-96 w-64 mx-auto">{renderChart()}</div>}
         </div>
       </div>
     </div>
