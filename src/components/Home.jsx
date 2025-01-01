@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Bar, Line, Pie } from "react-chartjs-2";
 import { IoCloseCircleSharp } from "react-icons/io5";
+import { FaLink } from "react-icons/fa";
 import Chart from "chart.js/auto";
 import toast from "react-hot-toast";
 
@@ -11,6 +12,7 @@ function Home(props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [chartType, setChartType] = useState("bar");
+  const [packageDetails, setPackageDetails] = useState(null);
   const [activeButton, setActiveButton] = useState(""); // Track active button
 
   const colors = [
@@ -87,7 +89,13 @@ function Home(props) {
     try {
       const response = await fetch(url);
       const data = await response.json();
-
+      const response_details = await fetch(
+        `https://registry.npmjs.org/-/v1/search?text=${packageName}`
+      );
+      const data_details = await response_details.json();
+      let package_details = data_details?.objects[0]?.package;
+      console.log(package_details);
+      setPackageDetails(package_details);
       toast.custom(
         (t) => (
           <div
@@ -182,7 +190,7 @@ function Home(props) {
     <div className="h-full">
       <div className="bg-white flex-col items-center gap-5 border flex justify-center p-12 h-fit m-4 md:m-12 rounded-xl shadow-lg">
         <form
-          className="bg-white border flex justify-between border-black rounded-xl px-2 md:px-5 py-2 h-fit w-fit md:w-[60%]"
+          className="bg-white shadow-lg border flex justify-between border-black rounded-xl px-2 md:px-5 py-2 h-fit w-fit md:w-[60%]"
           onSubmit={(e) => e.preventDefault()}
         >
           <input
@@ -192,59 +200,85 @@ function Home(props) {
             placeholder="Search package here"
           />
           <button
-            onClick={() => fetchDownloads("today")}
+            onClick={() => fetchDownloads("lastWeek")}
             className="bg-blue-400 hover:bg-blue-500 transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold"
           >
             Search
           </button>
         </form>
+        <div>
+          {packageDetails && (
+            <div className="text-center">
+              <div className="flex justify-center gap-2 items-center">
+                <p>Package Name: {packageDetails?.name}</p>
+                <a target="_target" href={packageDetails?.links.npm}>
+                  <FaLink />
+                </a>
+              </div>
+              <p>{packageDetails?.description}</p>
+              <p>Version: {packageDetails?.version}</p>
+            </div>
+          )}
+        </div>
         <div className="md:flex md:flex-row grid grid-cols-2 gap-5 h-fit">
           <button
             type="button"
-            onClick={() => { fetchDownloads("today"); setActiveButton("today"); }}
+            onClick={() => {
+              fetchDownloads("today");
+              setActiveButton("today");
+            }}
             className={`${
               activeButton === "today" ? "bg-blue-700" : "bg-blue-400"
-            } hover:bg-blue-500 transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold`}
+            } hover:bg-blue-500 hover:shadow-lg transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold`}
           >
             Today
           </button>
           <button
             type="button"
-            onClick={() => { fetchDownloads("lastWeek"); setActiveButton("lastWeek"); }}
+            onClick={() => {
+              fetchDownloads("lastWeek");
+              setActiveButton("lastWeek");
+            }}
             className={`${
               activeButton === "lastWeek" ? "bg-blue-700" : "bg-blue-400"
-            } hover:bg-blue-500 transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold`}
+            } hover:bg-blue-500 hover:shadow-lg transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold`}
           >
             Last Week
           </button>
           <button
             type="button"
-            onClick={() => { fetchDownloads("lastMonth"); setActiveButton("lastMonth"); }}
+            onClick={() => {
+              fetchDownloads("lastMonth");
+              setActiveButton("lastMonth");
+            }}
             className={`${
               activeButton === "lastMonth" ? "bg-blue-700" : "bg-blue-400"
-            } hover:bg-blue-500 transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold`}
+            } hover:bg-blue-500 hover:shadow-lg transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold`}
           >
             Last Month
           </button>
           <button
             type="button"
-            onClick={() => { fetchDownloads("allTime"); setActiveButton("allTime"); }}
+            onClick={() => {
+              fetchDownloads("allTime");
+              setActiveButton("allTime");
+            }}
             className={`${
               activeButton === "allTime" ? "bg-blue-700" : "bg-blue-400"
-            } hover:bg-blue-500 transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold`}
+            } hover:bg-blue-500 hover:shadow-lg transition-all ease-in duration-200 px-4 py-2 rounded-xl text-white font-semibold`}
           >
             All Time
           </button>
         </div>
         <div className="flex gap-5 my-4">
           <button
-            className="px-4 py-2 rounded-xl bg-gray-300"
+            className="px-4 py-2 rounded-xl bg-gray-300 hover:bg-gray-400 transition-all ease-in duration-200"
             onClick={() => setChartType("bar")}
           >
             Bar
           </button>
           <button
-            className="px-4 py-2 rounded-xl bg-gray-300"
+            className="px-4 py-2 rounded-xl bg-gray-300 hover:bg-gray-400 transition-all ease-in duration-200"
             onClick={() => setChartType("line")}
           >
             Line
@@ -254,7 +288,9 @@ function Home(props) {
           {loading && <p className="text-xl font-bold">Loading...</p>}
           {error && <p className="text-xl text-red-500 font-bold">{error}</p>}
           <h2 className="text-2xl font-bold mb-4">Downloads: {downloads}</h2>
-          {chartData && <div className="md:w-96 w-64 mx-auto">{renderChart()}</div>}
+          {chartData && (
+            <div className="md:w-96 w-64 mx-auto">{renderChart()}</div>
+          )}
         </div>
       </div>
     </div>
